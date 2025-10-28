@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,9 @@ export function CSVImport() {
   const [csvUrl, setCsvUrl] = useState("")
   const [csvText, setCsvText] = useState("")
   const [importing, setImporting] = useState(false)
-  const [result, setResult] = useState<{ success: boolean; message: string; imported?: number } | null>(null)
+  const [result, setResult] = useState<
+    { success: boolean; message: string; imported?: number; errors?: string[] } | null
+  >(null)
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [clearing, setClearing] = useState(false)
 
@@ -54,6 +56,17 @@ export function CSVImport() {
       setImporting(false)
     }
   }
+
+  useEffect(() => {
+    try {
+      const savedUrl = localStorage.getItem("contractsCsvUrl")
+      if (savedUrl) {
+        setCsvUrl(savedUrl)
+      }
+    } catch (error) {
+      console.error("Não foi possível recuperar a URL salva: ", error)
+    }
+  }, [])
 
   const handleImportFromUrl = async () => {
     if (!csvUrl.trim()) {
@@ -302,21 +315,33 @@ export function CSVImport() {
 
         {result && (
           <div
-            className={`flex items-start gap-2 rounded-lg p-4 ${
+            className={`rounded-lg p-4 ${
               result.success ? "bg-green-500/10 text-green-600" : "bg-red-500/10 text-red-600"
             }`}
           >
-            {result.success ? (
-              <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
-            )}
-            <div className="space-y-1">
-              <p className="text-sm font-medium">{result.message}</p>
-              {result.imported !== undefined && (
-                <p className="text-sm opacity-90">{result.imported} contratos importados</p>
+            <div className="flex items-start gap-2">
+              {result.success ? (
+                <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
+              ) : (
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
               )}
+              <div className="space-y-1">
+                <p className="text-sm font-medium">{result.message}</p>
+                {result.imported !== undefined && (
+                  <p className="text-sm opacity-90">{result.imported} contratos importados</p>
+                )}
+              </div>
             </div>
+            {result.errors && result.errors.length > 0 && (
+              <div className="mt-3 space-y-1 rounded-md border border-current/20 bg-background/40 p-3 text-xs">
+                <p className="font-medium uppercase tracking-wide">Detalhes</p>
+                <ul className="list-disc space-y-1 pl-4">
+                  {result.errors.map((errorMessage) => (
+                    <li key={errorMessage}>{errorMessage}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 
