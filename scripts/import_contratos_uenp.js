@@ -103,6 +103,7 @@ async function importContracts() {
       const contract = {
         numero_contrato: numeroContrato,
         numero_processo: processo || modalidadeNumero,
+        numero_gms: numeroGms || null,
         objeto: objeto,
         contratado: contratada,
         cnpj_cpf: "",

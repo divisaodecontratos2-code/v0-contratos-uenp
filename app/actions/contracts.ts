@@ -124,7 +124,7 @@ export async function importContractsFromCSV(csvText: string) {
 
         // Additional fields
         const categoria = row["CATEGORIA"] || ""
-        const numeroGms = row["Nº GMS"] || ""
+        const numeroGms = row["Nº GMS"] || row["numero_gms"] || ""
         const modalidade = row["MODALIDADE"] || ""
         const modalidadeNumero = row["MODALIDADE N°"] || ""
         const nomeacaoGestor = row["NOMEAÇÃO"] || values[headers.indexOf("NOMEAÇÃO")] || ""
@@ -173,6 +173,7 @@ export async function importContractsFromCSV(csvText: string) {
         const contract = {
           numero_contrato: numeroContrato,
           numero_processo: processo,
+          numero_gms: numeroGms || null,
           objeto: objeto,
           contratado: contratada,
           cnpj_cpf: "",

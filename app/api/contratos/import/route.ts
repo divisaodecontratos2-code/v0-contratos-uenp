@@ -32,18 +32,24 @@ export async function POST(request: Request) {
 
         const contract: Record<string, unknown> = {}
         headers.forEach((header: string, index: number) => {
+          const normalizedHeader = header.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          let key = header
+          if (header === "Nº GMS" || normalizedHeader === "No GMS" || normalizedHeader === "N GMS") {
+            key = "numero_gms"
+          }
+
           let value: string | number | boolean = values[index]
 
           // Convert types
-          if (header === "valor_inicial" || header === "valor_atual") {
+          if (key === "valor_inicial" || key === "valor_atual") {
             value = Number.parseFloat(value)
-          } else if (header === "prazo_meses") {
+          } else if (key === "prazo_meses") {
             value = Number.parseInt(value)
-          } else if (header === "prorrogavel") {
+          } else if (key === "prorrogavel") {
             value = value.toLowerCase() === "true"
           }
 
-          contract[header] = value
+          contract[key] = value
         })
 
         contract.created_by = user.id

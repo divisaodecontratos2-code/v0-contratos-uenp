@@ -2,6 +2,7 @@ export interface Contract {
   id: string
   numero_contrato: string
   numero_processo: string
+  numero_gms?: string | null
   objeto: string
   contratado: string
   cnpj_cpf: string
