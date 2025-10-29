@@ -122,6 +122,12 @@ export default async function ContratoDetalhesPage({ params }: { params: Promise
                   <p className="text-sm font-medium text-slate-600">Número do Processo</p>
                   <p className="mt-1 text-slate-900">{contract.numero_processo}</p>
                 </div>
+                {contract.numero_gms ? (
+                  <div>
+                    <p className="text-sm font-medium text-slate-600">Número GMS</p>
+                    <p className="mt-1 text-slate-900">{contract.numero_gms}</p>
+                  </div>
+                ) : null}
                 <div className="md:col-span-2">
                   <p className="text-sm font-medium text-slate-600">Objeto</p>
                   <p className="mt-1 text-slate-900">{contract.objeto}</p>

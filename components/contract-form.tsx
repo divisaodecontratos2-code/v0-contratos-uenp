@@ -32,6 +32,7 @@ export function ContractForm({ contract, isEdit = false }: ContractFormProps) {
     const data = {
       numero_contrato: formData.get("numero_contrato") as string,
       numero_processo: formData.get("numero_processo") as string,
+      numero_gms: (formData.get("numero_gms") as string) || null,
       objeto: formData.get("objeto") as string,
       contratado: formData.get("contratado") as string,
       cnpj_cpf: formData.get("cnpj_cpf") as string,
@@ -83,7 +84,7 @@ export function ContractForm({ contract, isEdit = false }: ContractFormProps) {
           <CardTitle>Informações Básicas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="numero_contrato">Número do Contrato *</Label>
               <Input id="numero_contrato" name="numero_contrato" defaultValue={contract?.numero_contrato} required />
@@ -91,6 +92,10 @@ export function ContractForm({ contract, isEdit = false }: ContractFormProps) {
             <div className="space-y-2">
               <Label htmlFor="numero_processo">Número do Processo *</Label>
               <Input id="numero_processo" name="numero_processo" defaultValue={contract?.numero_processo} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="numero_gms">Número GMS</Label>
+              <Input id="numero_gms" name="numero_gms" defaultValue={contract?.numero_gms ?? ""} />
             </div>
           </div>
 
