@@ -12,6 +12,7 @@ import { Plus, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { ContractExtension } from "@/lib/types"
 import { useRouter } from "next/navigation"
+import { formatBrazilianDate } from "@/lib/utils"
 
 interface ContractExtensionsProps {
   contractId: string
@@ -166,11 +167,11 @@ export function ContractExtensions({ contractId, extensions }: ContractExtension
                     <div className="mt-3 grid gap-2 text-sm text-slate-600 md:grid-cols-2">
                       <div>
                         <span className="font-medium">Data da Solicitação:</span>{" "}
-                        {new Date(extension.data_solicitacao).toLocaleDateString("pt-BR")}
+                        {formatBrazilianDate(extension.data_solicitacao)}
                       </div>
                       <div>
                         <span className="font-medium">Nova Data de Fim:</span>{" "}
-                        {new Date(extension.nova_data_fim).toLocaleDateString("pt-BR")}
+                        {formatBrazilianDate(extension.nova_data_fim)}
                       </div>
                     </div>
                   </div>

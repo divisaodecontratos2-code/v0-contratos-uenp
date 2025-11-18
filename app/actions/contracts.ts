@@ -27,6 +27,54 @@ function parseBrazilianCurrency(valueStr: string): number {
   return Number.parseFloat(cleaned) || 0
 }
 
+function cleanCSVValue(value?: string | null) {
+  if (!value) return ""
+  const trimmed = value.trim()
+  if (!trimmed || trimmed === "-" || trimmed === "--" || trimmed.toLowerCase() === "n/a") {
+    return ""
+  }
+  return trimmed
+}
+
+function getRowValue(
+  row: Record<string, string>,
+  normalizedRow: Record<string, string>,
+  keys: string[],
+): string {
+  for (const key of keys) {
+    if (!key) continue
+    const directValue = row[key]
+    if (directValue !== undefined) {
+      const cleaned = cleanCSVValue(directValue)
+      if (cleaned) return cleaned
+    }
+
+    const normalizedKey = key.toLowerCase()
+    const normalizedValue = normalizedRow[normalizedKey]
+    if (normalizedValue !== undefined) {
+      const cleaned = cleanCSVValue(normalizedValue)
+      if (cleaned) return cleaned
+    }
+  }
+
+  return ""
+}
+
+function findHeaderIndex(headers: string[], label: string, fromIndex = 0) {
+  const normalized = label.toLowerCase()
+  for (let index = Math.max(fromIndex, 0); index < headers.length; index++) {
+    if (headers[index].toLowerCase() === normalized) {
+      return index
+    }
+  }
+  return -1
+}
+
+function getHeaderValue(headers: string[], values: string[], label: string, fromIndex = 0) {
+  const index = findHeaderIndex(headers, label, fromIndex)
+  return index !== -1 ? values[index] || "" : ""
+}
+
 // Helper function to extract email from contact string
 function extractEmail(contactStr: string): string {
   if (!contactStr) return ""
@@ -103,32 +151,45 @@ export async function importContractsFromCSV(csvText: string) {
 
         // Create object from headers and values
         const row: Record<string, string> = {}
+        const normalizedRow: Record<string, string> = {}
         headers.forEach((header, index) => {
-          row[header] = values[index] || ""
+          const value = values[index] || ""
+          row[header] = value
+          normalizedRow[header.toLowerCase()] = value
         })
 
+        const getValue = (keys: string[]) => getRowValue(row, normalizedRow, keys)
+
         // Map CSV columns to database schema
-        const numeroContrato = row["Nº CONTRATO UENP"] || row["NUMERO_CONTRATO"] || row["numero_contrato"] || ""
-        const objeto = row["OBJETO"] || row["objeto"] || ""
-        const contratada = row["CONTRATADA"] || row["CONTRATADO"] || row["contratado"] || ""
-        const valorStr = row["VALOR"] || row["valor"] || "0"
-        const inicioVigencia = row["INÍCIO DA VIGÊNCIA"] || row["inicio_vigencia"] || row["data_inicio_vigencia"] || ""
-        const fimVigencia = row["FIM DA VIGÊNCIA"] || row["fim_vigencia"] || row["data_fim_vigencia"] || ""
-        const status = row["STATUS"] || row["status"] || row["situacao"] || "vigente"
-        const processo = row["PROCESSO"] || row["processo"] || row["numero_processo"] || ""
-        const gestorNome = row["GESTOR DO CONTRATO"] || row["gestor_nome"] || ""
-        const gestorContato = row["CONTATO"] || values[headers.indexOf("CONTATO")] || ""
-        const fiscalNome = row["FISCAL DO CONTRATO"] || row["fiscal_nome"] || ""
-        const fiscalContato = values[headers.indexOf("CONTATO", headers.indexOf("FISCAL DO CONTRATO"))] || ""
-        const prorrogavel = row["PREVISÃO DE PRORROGAÇÃO"] || row["prorrogavel"] || "NÃO"
+        const numeroContrato = getValue(["Nº CONTRATO UENP", "NUMERO_CONTRATO", "numero_contrato"])
+        const objeto = getValue(["OBJETO", "objeto"])
+        const contratada = getValue(["CONTRATADA", "CONTRATADO", "contratado"])
+        const valorStr = getValue(["VALOR", "valor", "valor_inicial"]) || "0"
+        const inicioVigencia =
+          getValue(["INÍCIO DA VIGÊNCIA", "INICIO DA VIGENCIA", "inicio_vigencia", "data_inicio_vigencia"]) || ""
+        const fimVigencia =
+          getValue(["FIM DA VIGÊNCIA", "FIM DA VIGENCIA", "fim_vigencia", "data_fim_vigencia"]) || ""
+        const status = getValue(["STATUS", "status", "situacao"]) || "vigente"
+        const processo = getValue(["PROCESSO", "Nº PROCESSO", "processo", "numero_processo"])
+        const gestorNome = getValue(["GESTOR DO CONTRATO", "GESTOR", "gestor_nome"])
+        const fiscalNome = getValue(["FISCAL DO CONTRATO", "FISCAL", "fiscal_nome"])
+        const gestorContato =
+          getValue(["CONTATO GESTOR", "GESTOR CONTATO", "CONTATO"]) || getHeaderValue(headers, values, "CONTATO")
+        const fiscalContato =
+          getValue(["CONTATO FISCAL", "FISCAL CONTATO"]) ||
+          getHeaderValue(headers, values, "CONTATO", findHeaderIndex(headers, "FISCAL DO CONTRATO") + 1)
+        const prorrogavel = getValue(["PREVISÃO DE PRORROGAÇÃO", "prorrogavel"]) || "NÃO"
+        const documento = getValue(["CNPJ/CPF", "CNPJ", "CPF", "DOCUMENTO", "cnpj_cpf", "documento"])
 
         // Additional fields
-        const categoria = row["CATEGORIA"] || ""
-        const numeroGms = row["Nº GMS"] || ""
-        const modalidade = row["MODALIDADE"] || ""
-        const modalidadeNumero = row["MODALIDADE N°"] || ""
-        const nomeacaoGestor = row["NOMEAÇÃO"] || values[headers.indexOf("NOMEAÇÃO")] || ""
-        const nomeacaoFiscal = values[headers.indexOf("NOMEAÇÃO", headers.indexOf("FISCAL DO CONTRATO"))] || ""
+        const categoria = getValue(["CATEGORIA"])
+        const numeroGms = getValue(["Nº GMS", "NUMERO GMS"])
+        const modalidade = getValue(["MODALIDADE"])
+        const modalidadeNumero = getValue(["MODALIDADE N°", "MODALIDADE Nº", "modalidade_numero"])
+        const nomeacaoGestor = getValue(["NOMEAÇÃO GESTOR", "NOMEAÇÃO", "NOMEACAO"])
+        const nomeacaoFiscal =
+          getValue(["NOMEAÇÃO FISCAL", "NOMEACAO FISCAL"]) ||
+          getHeaderValue(headers, values, "NOMEAÇÃO", findHeaderIndex(headers, "FISCAL DO CONTRATO") + 1)
 
         // Validate required fields
         if (!numeroContrato || !objeto || !contratada) {
@@ -151,6 +212,13 @@ export async function importContractsFromCSV(csvText: string) {
         // Calculate months
         const prazoMeses = calculateMonths(dataInicio, dataFim)
 
+        const numeroProcessoFinal = processo || numeroGms || modalidadeNumero || numeroContrato
+        const cnpjCpfFinal = documento || "Não informado"
+        const gestorNomeFinal = gestorNome || "Não informado"
+        const fiscalNomeFinal = fiscalNome || "Não informado"
+        const dataAssinatura =
+          parseBrazilianDate(getValue(["DATA DE ASSINATURA", "data_assinatura"])) || dataInicio
+
         // Extract contact info
         const gestorEmail = extractEmail(gestorContato)
         const gestorTelefone = extractPhone(gestorContato)
@@ -172,22 +240,22 @@ export async function importContractsFromCSV(csvText: string) {
         // Create contract object
         const contract = {
           numero_contrato: numeroContrato,
-          numero_processo: processo,
+          numero_processo: numeroProcessoFinal || "Não informado",
           objeto: objeto,
           contratado: contratada,
-          cnpj_cpf: "",
+          cnpj_cpf: cnpjCpfFinal,
           valor_inicial: valor,
           valor_atual: valor,
-          data_assinatura: dataInicio,
+          data_assinatura: dataAssinatura,
           data_inicio_vigencia: dataInicio,
           data_fim_vigencia: dataFim,
           prazo_meses: prazoMeses,
           prorrogavel: prorrogavel.toUpperCase() === "SIM" || prorrogavel.toLowerCase() === "true",
           situacao: normalizeStatus(status),
-          gestor_nome: gestorNome,
+          gestor_nome: gestorNomeFinal,
           gestor_email: gestorEmail,
           gestor_telefone: gestorTelefone,
-          fiscal_nome: fiscalNome,
+          fiscal_nome: fiscalNomeFinal,
           fiscal_email: fiscalEmail,
           fiscal_telefone: fiscalTelefone,
           observacoes: observacoes || null,
@@ -209,7 +277,10 @@ export async function importContractsFromCSV(csvText: string) {
     }
 
     // Insert contracts into database
-    const { data, error } = await supabase.from("contracts").insert(contracts).select()
+    const { data, error } = await supabase
+      .from("contracts")
+      .upsert(contracts, { onConflict: "numero_contrato" })
+      .select()
 
     if (error) {
       return {
@@ -218,6 +289,8 @@ export async function importContractsFromCSV(csvText: string) {
       }
     }
 
+    const affected = data?.length ?? contracts.length
+
     // Revalidate paths
     revalidatePath("/admin")
     revalidatePath("/admin/contratos")
@@ -225,8 +298,8 @@ export async function importContractsFromCSV(csvText: string) {
 
     return {
       success: true,
-      message: `${contracts.length} contrato(s) importado(s) com sucesso!`,
-      imported: contracts.length,
+      message: `${affected} contrato(s) importado(s) ou atualizado(s) com sucesso!`,
+      imported: affected,
       errors: errors.length > 0 ? errors : undefined,
     }
   } catch (error) {

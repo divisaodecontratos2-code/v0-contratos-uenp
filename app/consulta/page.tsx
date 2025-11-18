@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import type { Contract } from "@/lib/types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { formatBrazilianDate } from "@/lib/utils"
 
 export default async function ConsultaPage({
   searchParams,
@@ -152,11 +153,11 @@ export default async function ConsultaPage({
                           </div>
                           <div>
                             <span className="font-medium">Início:</span>{" "}
-                            {new Date(contract.data_inicio_vigencia).toLocaleDateString("pt-BR")}
+                            {formatBrazilianDate(contract.data_inicio_vigencia)}
                           </div>
                           <div>
                             <span className="font-medium">Fim:</span>{" "}
-                            {new Date(contract.data_fim_vigencia).toLocaleDateString("pt-BR")}
+                            {formatBrazilianDate(contract.data_fim_vigencia)}
                           </div>
                         </div>
                       </div>

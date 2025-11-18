@@ -13,6 +13,7 @@ import { Plus, FileEdit } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { ContractAmendment } from "@/lib/types"
 import { useRouter } from "next/navigation"
+import { formatBrazilianDate } from "@/lib/utils"
 
 interface ContractAmendmentsProps {
   contractId: string
@@ -238,7 +239,7 @@ export function ContractAmendments({ contractId, amendments }: ContractAmendment
                     <div className="mt-3 grid gap-2 text-sm text-slate-600 md:grid-cols-2">
                       <div>
                         <span className="font-medium">Data:</span>{" "}
-                        {new Date(amendment.data).toLocaleDateString("pt-BR")}
+                        {formatBrazilianDate(amendment.data)}
                       </div>
                       {amendment.valor_alteracao && (
                         <div>
@@ -261,7 +262,7 @@ export function ContractAmendments({ contractId, amendments }: ContractAmendment
                       {amendment.nova_data_fim && (
                         <div>
                           <span className="font-medium">Nova Data de Fim:</span>{" "}
-                          {new Date(amendment.nova_data_fim).toLocaleDateString("pt-BR")}
+                          {formatBrazilianDate(amendment.nova_data_fim)}
                         </div>
                       )}
                     </div>
