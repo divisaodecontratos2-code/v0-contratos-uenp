@@ -5,6 +5,7 @@ import type { ExpiringContract } from "@/lib/types"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { formatBrazilianDate } from "@/lib/utils"
 
 async function getExpiringContracts(days: number): Promise<ExpiringContract[]> {
   const supabase = await createClient()
@@ -158,7 +159,7 @@ export default async function AdminDashboard() {
                         <p className="mt-1 text-sm text-slate-600">{contract.objeto}</p>
                         <p className="mt-1 text-xs text-slate-500">
                           Contratado: {contract.contratado} | Vencimento:{" "}
-                          {new Date(contract.data_fim_vigencia).toLocaleDateString("pt-BR")}
+                          {formatBrazilianDate(contract.data_fim_vigencia)}
                         </p>
                       </div>
                       <Link href={`/admin/contratos/${contract.id}`}>
@@ -202,7 +203,7 @@ export default async function AdminDashboard() {
                         <p className="mt-1 text-sm text-slate-600">{contract.objeto}</p>
                         <p className="mt-1 text-xs text-slate-500">
                           Contratado: {contract.contratado} | Vencimento:{" "}
-                          {new Date(contract.data_fim_vigencia).toLocaleDateString("pt-BR")}
+                          {formatBrazilianDate(contract.data_fim_vigencia)}
                         </p>
                       </div>
                       <Link href={`/admin/contratos/${contract.id}`}>
@@ -244,7 +245,7 @@ export default async function AdminDashboard() {
                         <p className="mt-1 text-sm text-slate-600">{contract.objeto}</p>
                         <p className="mt-1 text-xs text-slate-500">
                           Contratado: {contract.contratado} | Vencimento:{" "}
-                          {new Date(contract.data_fim_vigencia).toLocaleDateString("pt-BR")}
+                          {formatBrazilianDate(contract.data_fim_vigencia)}
                         </p>
                       </div>
                       <Link href={`/admin/contratos/${contract.id}`}>

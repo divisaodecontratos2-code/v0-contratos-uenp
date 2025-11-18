@@ -9,6 +9,7 @@ import { DeleteContractButton } from "@/components/delete-contract-button"
 import { ContractFiles } from "@/components/contract-files"
 import { ContractAmendments } from "@/components/contract-amendments"
 import { ContractExtensions } from "@/components/contract-extensions"
+import { formatBrazilianDate } from "@/lib/utils"
 
 export default async function ContratoDetalhesPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -163,7 +164,7 @@ export default async function ContratoDetalhesPage({ params }: { params: Promise
                 <div>
                   <p className="text-sm font-medium text-slate-600">Data de Assinatura</p>
                   <p className="mt-1 text-slate-900">
-                    {new Date(contract.data_assinatura).toLocaleDateString("pt-BR")}
+                    {formatBrazilianDate(contract.data_assinatura)}
                   </p>
                 </div>
                 <div>
@@ -173,13 +174,13 @@ export default async function ContratoDetalhesPage({ params }: { params: Promise
                 <div>
                   <p className="text-sm font-medium text-slate-600">Início da Vigência</p>
                   <p className="mt-1 text-slate-900">
-                    {new Date(contract.data_inicio_vigencia).toLocaleDateString("pt-BR")}
+                    {formatBrazilianDate(contract.data_inicio_vigencia)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-600">Fim da Vigência</p>
                   <p className="mt-1 text-slate-900">
-                    {new Date(contract.data_fim_vigencia).toLocaleDateString("pt-BR")}
+                    {formatBrazilianDate(contract.data_fim_vigencia)}
                   </p>
                 </div>
               </CardContent>

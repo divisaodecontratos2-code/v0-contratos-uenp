@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { FileText, Home, Download, File } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { formatBrazilianDate } from "@/lib/utils"
 
 export default async function ConsultaDetalhesPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -179,9 +180,7 @@ export default async function ConsultaDetalhesPage({ params }: { params: Promise
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-600">Data de Assinatura</p>
-                  <p className="mt-1 text-slate-900">
-                    {new Date(contract.data_assinatura).toLocaleDateString("pt-BR")}
-                  </p>
+                  <p className="mt-1 text-slate-900">{formatBrazilianDate(contract.data_assinatura)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-600">Prazo</p>
@@ -189,15 +188,11 @@ export default async function ConsultaDetalhesPage({ params }: { params: Promise
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-600">Início da Vigência</p>
-                  <p className="mt-1 text-slate-900">
-                    {new Date(contract.data_inicio_vigencia).toLocaleDateString("pt-BR")}
-                  </p>
+                  <p className="mt-1 text-slate-900">{formatBrazilianDate(contract.data_inicio_vigencia)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-600">Fim da Vigência</p>
-                  <p className="mt-1 text-slate-900">
-                    {new Date(contract.data_fim_vigencia).toLocaleDateString("pt-BR")}
-                  </p>
+                  <p className="mt-1 text-slate-900">{formatBrazilianDate(contract.data_fim_vigencia)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -280,7 +275,7 @@ export default async function ConsultaDetalhesPage({ params }: { params: Promise
                       <div className="mt-3 grid gap-2 text-sm text-slate-600 md:grid-cols-2">
                         <div>
                           <span className="font-medium">Data:</span>{" "}
-                          {new Date(amendment.data).toLocaleDateString("pt-BR")}
+                          {formatBrazilianDate(amendment.data)}
                         </div>
                         {amendment.valor_alteracao && (
                           <div>
@@ -303,7 +298,7 @@ export default async function ConsultaDetalhesPage({ params }: { params: Promise
                         {amendment.nova_data_fim && (
                           <div>
                             <span className="font-medium">Nova Data de Fim:</span>{" "}
-                            {new Date(amendment.nova_data_fim).toLocaleDateString("pt-BR")}
+                            {formatBrazilianDate(amendment.nova_data_fim)}
                           </div>
                         )}
                       </div>
@@ -342,11 +337,11 @@ export default async function ConsultaDetalhesPage({ params }: { params: Promise
                       <div className="mt-3 grid gap-2 text-sm text-slate-600 md:grid-cols-2">
                         <div>
                           <span className="font-medium">Data da Solicitação:</span>{" "}
-                          {new Date(extension.data_solicitacao).toLocaleDateString("pt-BR")}
+                          {formatBrazilianDate(extension.data_solicitacao)}
                         </div>
                         <div>
                           <span className="font-medium">Nova Data de Fim:</span>{" "}
-                          {new Date(extension.nova_data_fim).toLocaleDateString("pt-BR")}
+                          {formatBrazilianDate(extension.nova_data_fim)}
                         </div>
                       </div>
                     </div>
@@ -375,7 +370,7 @@ export default async function ConsultaDetalhesPage({ params }: { params: Promise
                           </div>
                           <p className="text-sm text-slate-600">
                             {formatFileSize(file.tamanho_bytes)} •{" "}
-                            {new Date(file.uploaded_at).toLocaleDateString("pt-BR")}
+                            {formatBrazilianDate(file.uploaded_at)}
                           </p>
                         </div>
                       </div>
